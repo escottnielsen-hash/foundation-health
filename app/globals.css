@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Base: Zinc | Theme: Sky | Style: Mira | Radius: Default (0.5rem) */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -24,6 +25,23 @@
     --input: 240 5.9% 90%;
     --ring: 199 89% 48%;
     --radius: 0.5rem;
+
+    /* Chart Colors - Sky Theme */
+    --chart-1: 199 89% 48%;
+    --chart-2: 199 89% 38%;
+    --chart-3: 199 70% 55%;
+    --chart-4: 199 60% 65%;
+    --chart-5: 199 50% 75%;
+
+    /* Sidebar - Inverted Menu Color with Subtle Accent */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 199 89% 48%;
   }
 
   .dark {
@@ -46,6 +64,23 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 199 89% 48%;
+
+    /* Chart Colors - Sky Theme (Dark) */
+    --chart-1: 199 89% 48%;
+    --chart-2: 199 70% 55%;
+    --chart-3: 199 60% 65%;
+    --chart-4: 199 50% 75%;
+    --chart-5: 199 40% 80%;
+
+    /* Sidebar - Inverted Menu Color with Subtle Accent (Dark) */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 199 89% 48%;
   }
 }
 
