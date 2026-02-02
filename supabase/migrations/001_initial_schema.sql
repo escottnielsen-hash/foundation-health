@@ -7,8 +7,8 @@
 -- 1. ENABLE REQUIRED EXTENSIONS
 -- ============================================
 
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
 
 -- ============================================
 -- 2. CUSTOM TYPES
@@ -59,7 +59,7 @@ CREATE INDEX idx_profiles_role ON profiles(role);
 
 -- Practices
 CREATE TABLE practices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     npi TEXT UNIQUE,
     tax_id TEXT,
@@ -84,7 +84,7 @@ CREATE INDEX idx_practices_npi ON practices(npi);
 
 -- Physician Profiles
 CREATE TABLE physician_profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID UNIQUE NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     practice_id UUID REFERENCES practices(id) ON DELETE SET NULL,
     npi TEXT UNIQUE,
@@ -117,7 +117,7 @@ CREATE INDEX idx_physician_profiles_specialty ON physician_profiles(specialty);
 
 -- Patient Profiles
 CREATE TABLE patient_profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID UNIQUE NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     primary_physician_id UUID REFERENCES physician_profiles(id) ON DELETE SET NULL,
     mrn TEXT UNIQUE, -- Medical Record Number
@@ -149,7 +149,7 @@ CREATE INDEX idx_patient_profiles_mrn ON patient_profiles(mrn);
 
 -- Practice Staff
 CREATE TABLE practice_staff (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     practice_id UUID NOT NULL REFERENCES practices(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     role TEXT NOT NULL, -- 'admin', 'nurse', 'receptionist', 'billing', etc.
@@ -170,7 +170,7 @@ CREATE INDEX idx_practice_staff_user_id ON practice_staff(user_id);
 
 -- Health Records
 CREATE TABLE health_records (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     physician_id UUID REFERENCES physician_profiles(id) ON DELETE SET NULL,
     record_type TEXT NOT NULL, -- 'visit_note', 'prescription', 'diagnosis', 'procedure', 'imaging', etc.
@@ -195,7 +195,7 @@ CREATE INDEX idx_health_records_record_date ON health_records(record_date);
 
 -- Lab Results
 CREATE TABLE lab_results (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     ordered_by UUID REFERENCES physician_profiles(id) ON DELETE SET NULL,
     health_record_id UUID REFERENCES health_records(id) ON DELETE SET NULL,
@@ -223,7 +223,7 @@ CREATE INDEX idx_lab_results_status ON lab_results(status);
 
 -- Wearable Data
 CREATE TABLE wearable_data (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     device_type TEXT NOT NULL, -- 'apple_watch', 'fitbit', 'garmin', 'oura', 'whoop', etc.
     device_id TEXT,
@@ -249,7 +249,7 @@ CREATE INDEX idx_wearable_data_recorded_at ON wearable_data(recorded_at);
 
 -- CME Courses
 CREATE TABLE cme_courses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     description TEXT,
     provider TEXT NOT NULL,
@@ -277,7 +277,7 @@ CREATE INDEX idx_cme_courses_is_active ON cme_courses(is_active);
 
 -- CME Progress
 CREATE TABLE cme_progress (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     physician_id UUID NOT NULL REFERENCES physician_profiles(id) ON DELETE CASCADE,
     course_id UUID NOT NULL REFERENCES cme_courses(id) ON DELETE CASCADE,
     status cme_status DEFAULT 'not_started',
@@ -298,7 +298,7 @@ CREATE INDEX idx_cme_progress_status ON cme_progress(status);
 
 -- Protocols
 CREATE TABLE protocols (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     description TEXT,
     category TEXT NOT NULL, -- 'treatment', 'diagnostic', 'preventive', 'emergency'
@@ -327,7 +327,7 @@ CREATE INDEX idx_protocols_is_published ON protocols(is_published);
 -- ============================================
 
 CREATE TABLE appointments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     physician_id UUID NOT NULL REFERENCES physician_profiles(id) ON DELETE CASCADE,
     practice_id UUID REFERENCES practices(id) ON DELETE SET NULL,
@@ -370,7 +370,7 @@ CREATE INDEX idx_appointments_status ON appointments(status);
 
 -- Nutrition Plans
 CREATE TABLE nutrition_plans (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     created_by UUID REFERENCES profiles(id),
     title TEXT NOT NULL,
@@ -394,7 +394,7 @@ CREATE INDEX idx_nutrition_plans_is_active ON nutrition_plans(is_active);
 
 -- Workout Plans
 CREATE TABLE workout_plans (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     created_by UUID REFERENCES profiles(id),
     title TEXT NOT NULL,
@@ -419,7 +419,7 @@ CREATE INDEX idx_workout_plans_is_active ON workout_plans(is_active);
 
 -- Supplements
 CREATE TABLE supplements (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     prescribed_by UUID REFERENCES physician_profiles(id),
     name TEXT NOT NULL,
@@ -445,7 +445,7 @@ CREATE INDEX idx_supplements_is_active ON supplements(is_active);
 
 -- Referrals
 CREATE TABLE referrals (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     referring_physician_id UUID NOT NULL REFERENCES physician_profiles(id) ON DELETE CASCADE,
     referred_to_physician_id UUID REFERENCES physician_profiles(id) ON DELETE SET NULL,
@@ -475,7 +475,7 @@ CREATE INDEX idx_referrals_status ON referrals(status);
 
 -- DME Distributors
 CREATE TABLE dme_distributors (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     contact_name TEXT,
     phone TEXT,
@@ -501,7 +501,7 @@ CREATE INDEX idx_dme_distributors_product_categories ON dme_distributors USING G
 
 -- DME Orders
 CREATE TABLE dme_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL REFERENCES patient_profiles(id) ON DELETE CASCADE,
     prescribing_physician_id UUID NOT NULL REFERENCES physician_profiles(id) ON DELETE CASCADE,
     distributor_id UUID REFERENCES dme_distributors(id) ON DELETE SET NULL,
@@ -538,7 +538,7 @@ CREATE INDEX idx_dme_orders_order_number ON dme_orders(order_number);
 
 -- Subscriptions
 CREATE TABLE subscriptions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     practice_id UUID REFERENCES practices(id) ON DELETE SET NULL,
     stripe_customer_id TEXT,
@@ -564,7 +564,7 @@ CREATE INDEX idx_subscriptions_status ON subscriptions(status);
 
 -- Payment History
 CREATE TABLE payment_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     subscription_id UUID REFERENCES subscriptions(id) ON DELETE SET NULL,
     stripe_payment_intent_id TEXT UNIQUE,
@@ -595,7 +595,7 @@ CREATE INDEX idx_payment_history_paid_at ON payment_history(paid_at);
 -- ============================================
 
 CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     action audit_action NOT NULL,
     table_name TEXT NOT NULL,
