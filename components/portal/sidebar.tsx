@@ -14,6 +14,7 @@ import {
   Stethoscope,
   Users,
   CreditCard,
+  Receipt,
   User,
   LogOut,
   ChevronLeft,
@@ -49,6 +50,7 @@ const navItems: NavItem[] = [
   { label: 'Encounters', href: '/patient/encounters', icon: Stethoscope },
   { label: 'Providers', href: '/patient/providers', icon: Users },
   { label: 'Membership', href: '/patient/membership', icon: CreditCard },
+  { label: 'Billing', href: '/patient/billing', icon: Receipt },
   { label: 'Profile', href: '/patient/profile', icon: User },
 ]
 
