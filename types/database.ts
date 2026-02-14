@@ -777,6 +777,43 @@ export interface IDRCase {
 }
 
 // ============================================
+// Phase 1c: Superbills
+// ============================================
+
+export type SuperbillStatus = 'generated' | 'submitted_to_insurance' | 'reimbursed' | 'denied' | 'pending_review'
+
+export interface DiagnosisCodeEntry {
+  code: string
+  description: string
+}
+
+export interface ProcedureCodeEntry {
+  code: string
+  description: string
+  modifier?: string | null
+  charge_cents: number
+}
+
+export interface Superbill {
+  id: string
+  patient_id: string
+  encounter_id?: string | null
+  provider_id: string
+  location_id?: string | null
+  date_of_service: string
+  place_of_service_code: string
+  diagnosis_codes: DiagnosisCodeEntry[]
+  procedure_codes: ProcedureCodeEntry[]
+  total_charges_cents: number
+  status: SuperbillStatus
+  insurance_submitted_at?: string | null
+  reimbursement_amount_cents?: number | null
+  notes?: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ============================================
 // Convenience type aliases
 // ============================================
 
@@ -813,4 +850,5 @@ export type Tables = {
   idr_cases: IDRCase
   provider_locations: ProviderLocation
   provider_services: ProviderService
+  superbills: Superbill
 }
