@@ -20,6 +20,9 @@ import {
   LogOut,
   ChevronLeft,
   X,
+  Shield,
+  FileCheck,
+  MapPin,
 } from 'lucide-react'
 
 // ============================================
@@ -52,6 +55,9 @@ const navItems: NavItem[] = [
   { label: 'Providers', href: '/patient/providers', icon: Users },
   { label: 'Travel & Concierge', href: '/patient/travel', icon: Plane },
   { label: 'Membership', href: '/patient/membership', icon: CreditCard },
+  { label: 'Locations', href: '/patient/locations', icon: MapPin },
+  { label: 'Insurance', href: '/patient/insurance', icon: Shield },
+  { label: 'Claims', href: '/patient/claims', icon: FileCheck },
   { label: 'Billing', href: '/patient/billing', icon: Receipt },
   { label: 'Profile', href: '/patient/profile', icon: User },
 ]
