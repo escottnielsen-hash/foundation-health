@@ -23,7 +23,8 @@ export type MembershipTierName = 'platinum' | 'gold' | 'silver'
 export type MembershipStatus = 'active' | 'past_due' | 'cancelled' | 'paused'
 export type EncounterStatus = 'checked_in' | 'in_progress' | 'completed' | 'cancelled'
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'partially_paid' | 'overdue' | 'void' | 'refunded'
-export type ClaimStatus = 'draft' | 'submitted' | 'acknowledged' | 'pending' | 'denied' | 'partially_paid' | 'paid' | 'appealed'
+export type ClaimStatus = 'draft' | 'submitted' | 'acknowledged' | 'pending' | 'in_review' | 'denied' | 'partially_paid' | 'paid' | 'appealed' | 'idr_initiated' | 'idr_resolved' | 'closed'
+export type ClaimActivityType = 'submitted' | 'acknowledged' | 'info_requested' | 'denied' | 'partially_paid' | 'paid' | 'appeal_filed' | 'idr_initiated' | 'idr_resolved' | 'note_added' | 'eob_received'
 export type IDRStatus = 'initiated' | 'negotiation' | 'submitted' | 'hearing_scheduled' | 'decided' | 'closed'
 
 // ============================================
@@ -799,6 +800,8 @@ export interface IDRCase {
 // ============================================
 
 export type SuperbillStatus = 'generated' | 'submitted_to_insurance' | 'reimbursed' | 'denied' | 'pending_review'
+export type VerificationStatus = 'pending' | 'verified' | 'failed' | 'expired'
+export type PlanType = 'PPO' | 'HMO' | 'EPO' | 'POS' | 'HDHP' | 'Medicare' | 'Medicaid' | 'Tricare' | 'Other'
 
 export interface DiagnosisCodeEntry {
   code: string
@@ -829,6 +832,150 @@ export interface Superbill {
   notes?: string | null
   created_at: string
   updated_at: string
+}
+
+// ============================================
+// Phase 1e: Appeals & IDR Enhanced Types
+// ============================================
+
+export type AppealType = 'internal_first' | 'internal_second' | 'external' | 'state_review'
+export type AppealStatus = 'draft' | 'submitted' | 'in_review' | 'upheld' | 'overturned' | 'partially_overturned' | 'withdrawn'
+export type IdrCaseStatus = 'initiated' | 'entity_selected' | 'offer_submitted' | 'counter_submitted' | 'under_review' | 'decided_provider' | 'decided_payer' | 'settled' | 'withdrawn' | 'administratively_closed'
+
+export interface ClaimAppeal {
+  id: string
+  claim_id: string
+  appeal_level: number
+  appeal_type: AppealType
+  status: AppealStatus
+  submitted_at: string | null
+  deadline: string | null
+  reason: string
+  supporting_documents: string[] | null
+  resolved_at: string | null
+  resolution_amount: number | null
+  resolution_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface IdrCaseEnhanced {
+  id: string
+  claim_id: string
+  idr_entity: string | null
+  case_reference: string | null
+  status: IdrCaseStatus
+  provider_offer_amount: number
+  payer_offer_amount: number | null
+  initiated_at: string
+  entity_selected_at: string | null
+  offers_due_date: string | null
+  decision_due_date: string | null
+  decided_at: string | null
+  decision_amount: number | null
+  decision_rationale: string | null
+  qpa_amount: number
+  provider_billed_amount: number
+  idr_fee_amount: number | null
+  idr_fee_paid_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ============================================
+// Phase 1e: Insurance Verification
+// ============================================
+
+export interface InsuranceVerification {
+  id: string
+  patient_id: string
+  insurance_policy_id: string | null
+  payer_name: string
+  payer_id: string | null
+  member_id: string
+  group_number: string | null
+  plan_type: string | null
+  oon_deductible_individual: number | null
+  oon_deductible_family: number | null
+  oon_deductible_met: number | null
+  oon_out_of_pocket_max: number | null
+  oon_out_of_pocket_met: number | null
+  oon_coinsurance_pct: number | null
+  inn_deductible_individual: number | null
+  inn_coinsurance_pct: number | null
+  verification_status: VerificationStatus
+  verified_at: string | null
+  verified_by: string | null
+  reference_number: string | null
+  notes: string | null
+  estimated_allowed_amount: number | null
+  estimated_patient_responsibility: number | null
+  created_at: string
+  updated_at: string
+}
+
+// ============================================
+// Phase 1e: Claim Line Items & Activities
+// ============================================
+
+export interface ClaimLineItem {
+  id: string
+  claim_id: string
+  line_number: number
+  cpt_code: string
+  cpt_description: string | null
+  icd10_codes: string[] | null
+  modifier: string | null
+  units: number
+  charge_amount: number
+  qpa_amount: number | null
+  allowed_amount: number | null
+  paid_amount: number | null
+  denial_reason_code: string | null
+  created_at: string
+}
+
+export interface ClaimActivity {
+  id: string
+  claim_id: string
+  activity_type: ClaimActivityType
+  description: string
+  performed_by: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
+
+export interface ClaimWithDetails {
+  id: string
+  patient_id: string
+  encounter_id: string | null
+  claim_number: string | null
+  payer_name: string | null
+  payer_id: string | null
+  member_id: string | null
+  group_number: string | null
+  claim_status: ClaimStatus
+  service_date: string | null
+  place_of_service: string | null
+  referring_provider: string | null
+  rendering_provider: string | null
+  billed_amount: number
+  qpa_amount: number | null
+  billed_multiplier: number | null
+  allowed_amount: number | null
+  paid_amount: number | null
+  patient_responsibility: number | null
+  denial_reason: string | null
+  appeal_deadline: string | null
+  idr_eligible: boolean
+  submitted_at: string | null
+  eob_received_at: string | null
+  eob_url: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+  line_items?: ClaimLineItem[]
+  activities?: ClaimActivity[]
 }
 
 // ============================================
@@ -870,4 +1017,9 @@ export type Tables = {
   provider_services: ProviderService
   location_services: LocationService
   superbills: Superbill
+  insurance_verifications: InsuranceVerification
+  claim_line_items: ClaimLineItem
+  claim_activities: ClaimActivity
+  claim_appeals: ClaimAppeal
+  idr_cases_enhanced: IdrCaseEnhanced
 }

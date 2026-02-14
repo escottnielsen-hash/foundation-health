@@ -5,6 +5,8 @@ import {
   LayoutDashboard,
   Building2,
   Network,
+  DollarSign,
+  FileCheck,
 } from 'lucide-react'
 
 // ============================================
@@ -15,6 +17,8 @@ const adminNavItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Locations', href: '/admin/locations', icon: Building2 },
   { label: 'Network', href: '/admin/network', icon: Network },
+  { label: 'Claims', href: '/admin/claims', icon: FileCheck },
+  { label: 'Revenue', href: '/admin/revenue', icon: DollarSign },
 ]
 
 // ============================================
