@@ -24,6 +24,7 @@ export default async function DashboardPage() {
     case 'physician':
       redirect('/physician/dashboard')
     case 'admin':
+    case 'staff':
       redirect('/admin/dashboard')
     default:
       redirect('/patient/dashboard')
