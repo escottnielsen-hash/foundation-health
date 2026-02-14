@@ -90,6 +90,11 @@ export interface PhysicianProfile {
   specialty?: string | null
   subspecialties?: string[] | null
   board_certifications?: string[] | null
+  credentials?: string | null
+  years_of_experience?: number | null
+  education?: Json
+  avatar_url?: string | null
+  is_active: boolean
   medical_school?: string | null
   graduation_year?: number | null
   residency?: string | null
@@ -103,6 +108,26 @@ export interface PhysicianProfile {
   cme_cycle_end_date?: string | null
   is_verified: boolean
   verified_at?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ProviderLocation {
+  id: string
+  physician_id: string
+  location_id: string
+  is_primary: boolean
+  days_available?: string[] | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ProviderService {
+  id: string
+  physician_id: string
+  service_id: string
+  is_primary: boolean
+  custom_price?: number | null
   created_at: string
   updated_at: string
 }
@@ -786,4 +811,6 @@ export type Tables = {
   insurance_payers: InsurancePayer
   insurance_claims: InsuranceClaim
   idr_cases: IDRCase
+  provider_locations: ProviderLocation
+  provider_services: ProviderService
 }

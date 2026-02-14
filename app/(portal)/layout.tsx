@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { PortalShell } from '@/components/layout/portal-shell'
+import { PortalLayoutShell } from '@/components/portal/portal-layout-shell'
 
 async function getUserProfile(userId: string) {
   const supabase = await createClient()
   const { data } = await supabase
     .from('profiles')
-    .select('*')
+    .select('first_name, last_name, email, avatar_url, role')
     .eq('id', userId)
     .single()
   return data
@@ -26,9 +26,19 @@ export default async function PortalLayout({
 
   const profile = await getUserProfile(user.id)
 
+  const userName = profile
+    ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'User'
+    : 'User'
+  const userEmail = profile?.email || user.email || ''
+  const userAvatarUrl = profile?.avatar_url ?? null
+
   return (
-    <PortalShell user={user} profile={profile}>
+    <PortalLayoutShell
+      userName={userName}
+      userEmail={userEmail}
+      userAvatarUrl={userAvatarUrl}
+    >
       {children}
-    </PortalShell>
+    </PortalLayoutShell>
   )
 }
