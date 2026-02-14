@@ -19,6 +19,10 @@ export const bookingSchema = z.object({
   appointment_time: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format'),
+  location_id: z
+    .string()
+    .regex(uuidRegex, 'Invalid location selection')
+    .optional(),
   notes: z
     .string()
     .max(1000, 'Notes must be 1000 characters or fewer')

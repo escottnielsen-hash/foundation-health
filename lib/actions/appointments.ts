@@ -8,6 +8,7 @@ import type {
   ServiceCatalog,
   PhysicianProfile,
   Profile,
+  Location,
 } from '@/types/database'
 import { ZodError } from 'zod'
 
@@ -42,6 +43,10 @@ export interface AppointmentWithDetails extends Appointment {
   location_name: string | null
   location_city: string | null
   location_state: string | null
+  location_address_line1: string | null
+  location_zip_code: string | null
+  location_phone: string | null
+  location_type: string | null
 }
 
 export interface ProviderWithProfile extends PhysicianProfile {
@@ -52,6 +57,12 @@ export interface TimeSlot {
   time: string
   available: boolean
 }
+
+/** Location data returned for the booking flow */
+export interface BookingLocationData extends Pick<
+  Location,
+  'id' | 'name' | 'location_type' | 'city' | 'state' | 'address_line1' | 'address_line2' | 'zip_code' | 'phone' | 'is_active'
+> {}
 
 // ============================================
 // getPatientAppointments
@@ -90,7 +101,7 @@ export async function getPatientAppointments(
             avatar_url
           )
         ),
-        appointment_location:locations(name, city, state)
+        appointment_location:locations(name, city, state, address_line1, zip_code, phone, location_type)
       `)
       .eq('patient_id', patientProfile.id)
 
@@ -131,6 +142,10 @@ export async function getPatientAppointments(
         name: string
         city: string | null
         state: string | null
+        address_line1: string | null
+        zip_code: string | null
+        phone: string | null
+        location_type: string | null
       } | null
 
       const {
@@ -150,6 +165,10 @@ export async function getPatientAppointments(
         location_name: appointmentLocation?.name ?? null,
         location_city: appointmentLocation?.city ?? null,
         location_state: appointmentLocation?.state ?? null,
+        location_address_line1: appointmentLocation?.address_line1 ?? null,
+        location_zip_code: appointmentLocation?.zip_code ?? null,
+        location_phone: appointmentLocation?.phone ?? null,
+        location_type: appointmentLocation?.location_type ?? null,
       } as AppointmentWithDetails
     })
 
@@ -200,7 +219,7 @@ export async function getAppointmentById(
             avatar_url
           )
         ),
-        appointment_location:locations(name, city, state)
+        appointment_location:locations(name, city, state, address_line1, zip_code, phone, location_type)
       `)
       .eq('id', appointmentId)
       .eq('patient_id', patientProfile.id)
@@ -229,6 +248,10 @@ export async function getAppointmentById(
       name: string
       city: string | null
       state: string | null
+      address_line1: string | null
+      zip_code: string | null
+      phone: string | null
+      location_type: string | null
     } | null
 
     const {
@@ -250,6 +273,10 @@ export async function getAppointmentById(
         location_name: appointmentLocation?.name ?? null,
         location_city: appointmentLocation?.city ?? null,
         location_state: appointmentLocation?.state ?? null,
+        location_address_line1: appointmentLocation?.address_line1 ?? null,
+        location_zip_code: appointmentLocation?.zip_code ?? null,
+        location_phone: appointmentLocation?.phone ?? null,
+        location_type: appointmentLocation?.location_type ?? null,
       } as AppointmentWithDetails,
     }
   } catch {
@@ -261,12 +288,89 @@ export async function getAppointmentById(
 }
 
 // ============================================
+// getBookingLocations
+// ============================================
+
+export async function getBookingLocations(): Promise<ActionResult<BookingLocationData[]>> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('locations')
+      .select('id, name, location_type, city, state, address_line1, address_line2, zip_code, phone, is_active')
+      .eq('is_active', true)
+      .in('location_type', ['hub', 'spoke'])
+      .order('location_type', { ascending: true })
+      .order('name', { ascending: true })
+
+    if (error) {
+      return {
+        success: false,
+        error: 'Could not load locations. Please try again.',
+      }
+    }
+
+    return { success: true, data: (data ?? []) as BookingLocationData[] }
+  } catch {
+    return {
+      success: false,
+      error: 'An unexpected error occurred while loading locations.',
+    }
+  }
+}
+
+// ============================================
 // getAvailableServices
 // ============================================
 
-export async function getAvailableServices(): Promise<ActionResult<ServiceCatalog[]>> {
+export async function getAvailableServices(
+  locationId?: string
+): Promise<ActionResult<ServiceCatalog[]>> {
   try {
     const supabase = await createClient()
+
+    // If a locationId is provided, try to filter services by providers at that location
+    // via provider_services + provider_locations junction tables
+    if (locationId) {
+      // Find service IDs offered by providers at the given location
+      const { data: providerLocationData } = await supabase
+        .from('provider_locations')
+        .select('physician_id')
+        .eq('location_id', locationId)
+
+      if (providerLocationData && providerLocationData.length > 0) {
+        const physicianIds = providerLocationData.map((pl) => pl.physician_id)
+
+        const { data: providerServiceData } = await supabase
+          .from('provider_services')
+          .select('service_id')
+          .in('physician_id', physicianIds)
+
+        if (providerServiceData && providerServiceData.length > 0) {
+          const serviceIds = [...new Set(providerServiceData.map((ps) => ps.service_id))]
+
+          const { data, error } = await supabase
+            .from('service_catalog')
+            .select('*')
+            .eq('is_active', true)
+            .in('id', serviceIds)
+            .order('sort_order', { ascending: true })
+            .order('name', { ascending: true })
+
+          if (error) {
+            return {
+              success: false,
+              error: 'Could not load services. Please try again.',
+            }
+          }
+
+          return { success: true, data: (data ?? []) as ServiceCatalog[] }
+        }
+      }
+
+      // If no provider_services / provider_locations data is found,
+      // fall through to return all active services as a graceful fallback
+    }
 
     const { data, error } = await supabase
       .from('service_catalog')
@@ -296,10 +400,58 @@ export async function getAvailableServices(): Promise<ActionResult<ServiceCatalo
 // ============================================
 
 export async function getAvailableProviders(
-  _serviceId?: string
+  _serviceId?: string,
+  locationId?: string
 ): Promise<ActionResult<ProviderWithProfile[]>> {
   try {
     const supabase = await createClient()
+
+    // If a locationId is provided, filter providers using provider_locations junction
+    if (locationId) {
+      const { data: providerLocationData } = await supabase
+        .from('provider_locations')
+        .select('physician_id')
+        .eq('location_id', locationId)
+
+      if (providerLocationData && providerLocationData.length > 0) {
+        const physicianIds = providerLocationData.map((pl) => pl.physician_id)
+
+        const { data, error } = await supabase
+          .from('physician_profiles')
+          .select(`
+            *,
+            profile:profiles!physician_profiles_user_id_fkey(
+              first_name,
+              last_name,
+              avatar_url
+            )
+          `)
+          .eq('accepting_new_patients', true)
+          .eq('is_verified', true)
+          .in('id', physicianIds)
+
+        if (error) {
+          return {
+            success: false,
+            error: 'Could not load providers. Please try again.',
+          }
+        }
+
+        const providers: ProviderWithProfile[] = (data ?? []).map((item) => {
+          const rec = item as Record<string, unknown>
+          const profileData = rec.profile as Pick<Profile, 'first_name' | 'last_name' | 'avatar_url'>
+          const { profile: _removed, ...rest } = rec
+          return {
+            ...rest,
+            profile: profileData,
+          } as ProviderWithProfile
+        })
+
+        return { success: true, data: providers }
+      }
+
+      // No provider_locations data — fall through to return all providers
+    }
 
     const { data, error } = await supabase
       .from('physician_profiles')
@@ -346,7 +498,8 @@ export async function getAvailableProviders(
 
 export async function getAvailableTimeSlots(
   providerId: string,
-  date: string
+  date: string,
+  _locationId?: string
 ): Promise<ActionResult<TimeSlot[]>> {
   try {
     const supabase = await createClient()
@@ -356,14 +509,20 @@ export async function getAvailableTimeSlots(
     const startOfDay = `${date}T00:00:00.000Z`
     const endOfDay = `${date}T23:59:59.999Z`
 
-    // Fetch existing appointments for this provider on this date
-    const { data: existingAppointments, error } = await supabase
+    // Build the existing appointments query — optionally filter by location
+    let query = supabase
       .from('appointments')
       .select('scheduled_start, scheduled_end')
       .eq('physician_id', providerId)
       .gte('scheduled_start', startOfDay)
       .lte('scheduled_start', endOfDay)
       .in('status', ['scheduled', 'confirmed', 'in_progress'])
+
+    if (_locationId) {
+      query = query.eq('location_id', _locationId)
+    }
+
+    const { data: existingAppointments, error } = await query
 
     if (error) {
       return {
@@ -487,6 +646,7 @@ export async function createAppointment(
         patient_id: patientProfile.id,
         physician_id: data.provider_id,
         practice_id: provider?.practice_id ?? null,
+        location_id: data.location_id ?? null,
         appointment_type: service?.category ?? 'consultation',
         title: service?.name ?? 'Appointment',
         scheduled_start: scheduledStart.toISOString(),

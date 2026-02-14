@@ -21,6 +21,7 @@ import {
   getAvailableTimeSlots,
   createAppointment,
 } from '@/lib/actions/appointments'
+import { SelectLocationStep } from '@/components/patient/appointments/select-location-step'
 import type { ServiceCatalog } from '@/types/database'
 import type { TimeSlot } from '@/lib/actions/appointments'
 import { format } from 'date-fns'
@@ -38,10 +39,11 @@ interface BookingFlowProps {
 // ============================================
 
 const STEPS: { step: BookingStep; label: string }[] = [
-  { step: 1, label: 'Service' },
-  { step: 2, label: 'Provider' },
-  { step: 3, label: 'Date & Time' },
-  { step: 4, label: 'Confirm' },
+  { step: 1, label: 'Location' },
+  { step: 2, label: 'Service' },
+  { step: 3, label: 'Provider' },
+  { step: 4, label: 'Date & Time' },
+  { step: 5, label: 'Confirm' },
 ]
 
 function StepIndicator({ currentStep }: { currentStep: BookingStep }) {
@@ -89,19 +91,20 @@ function StepIndicator({ currentStep }: { currentStep: BookingStep }) {
 }
 
 // ============================================
-// Step 1: Select Service
+// Step 2: Select Service (was Step 1)
 // ============================================
 
 function SelectServiceStep() {
   const [services, setServices] = useState<ServiceCatalog[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { selectedService, setService, nextStep } = useBookingStore()
+  const { selectedLocation, selectedService, setService, nextStep, prevStep } = useBookingStore()
 
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const result = await getAvailableServices()
+      const locationId = selectedLocation?.id
+      const result = await getAvailableServices(locationId)
       if (result.success) {
         setServices(result.data)
       } else {
@@ -110,7 +113,7 @@ function SelectServiceStep() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [selectedLocation?.id])
 
   function handleSelect(service: ServiceCatalog) {
     setService(service)
@@ -147,81 +150,92 @@ function SelectServiceStep() {
           <p className="text-gray-500 text-sm">
             There are currently no services available for booking. Please check back later.
           </p>
+          <Button variant="outline" className="mt-4" onClick={prevStep}>
+            Go Back
+          </Button>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">
-        Select a Service
-      </h2>
-      {services.map((service) => (
-        <Card
-          key={service.id}
-          className={`cursor-pointer transition-all hover:border-primary-300 hover:shadow-md ${
-            selectedService?.id === service.id
-              ? 'border-primary-500 ring-2 ring-primary-100'
-              : ''
-          }`}
-          onClick={() => handleSelect(service)}
-        >
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-base font-semibold text-gray-900 mb-1">
-                  {service.name}
-                </h3>
-                {service.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-2">
-                    {service.description}
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-gray-900">
+          Select a Service
+        </h2>
+        <Button variant="ghost" size="sm" onClick={prevStep}>
+          Back
+        </Button>
+      </div>
+      <div className="space-y-3">
+        {services.map((service) => (
+          <Card
+            key={service.id}
+            className={`cursor-pointer transition-all hover:border-primary-300 hover:shadow-md ${
+              selectedService?.id === service.id
+                ? 'border-primary-500 ring-2 ring-primary-100'
+                : ''
+            }`}
+            onClick={() => handleSelect(service)}
+          >
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-gray-900 mb-1">
+                    {service.name}
+                  </h3>
+                  {service.description && (
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+                      {service.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    {service.duration_minutes && (
+                      <span>{service.duration_minutes} min</span>
+                    )}
+                    {service.category && (
+                      <Badge variant="outline" className="text-[10px]">
+                        {service.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                      </Badge>
+                    )}
+                    {service.is_telehealth_eligible && (
+                      <Badge variant="outline" className="text-[10px]">
+                        Telehealth Eligible
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-lg font-semibold text-gray-900">
+                    ${service.base_price.toFixed(2)}
                   </p>
-                )}
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  {service.duration_minutes && (
-                    <span>{service.duration_minutes} min</span>
-                  )}
-                  {service.category && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {service.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                    </Badge>
-                  )}
-                  {service.is_telehealth_eligible && (
-                    <Badge variant="outline" className="text-[10px]">
-                      Telehealth Eligible
-                    </Badge>
-                  )}
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-lg font-semibold text-gray-900">
-                  ${service.base_price.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }
 
 // ============================================
-// Step 2: Select Provider
+// Step 3: Select Provider (was Step 2)
 // ============================================
 
 function SelectProviderStep() {
   const [providers, setProviders] = useState<ProviderWithProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { selectedService, selectedProvider, setProvider, nextStep, prevStep } =
+  const { selectedLocation, selectedService, selectedProvider, setProvider, nextStep, prevStep } =
     useBookingStore()
 
   useEffect(() => {
     async function load() {
       setLoading(true)
-      const result = await getAvailableProviders(selectedService?.id)
+      const locationId = selectedLocation?.id
+      const result = await getAvailableProviders(selectedService?.id, locationId)
       if (result.success) {
         setProviders(result.data as unknown as ProviderWithProfile[])
       } else {
@@ -230,7 +244,7 @@ function SelectProviderStep() {
       setLoading(false)
     }
     load()
-  }, [selectedService?.id])
+  }, [selectedService?.id, selectedLocation?.id])
 
   function handleSelect(provider: ProviderWithProfile) {
     setProvider(provider)
@@ -337,11 +351,11 @@ function SelectProviderStep() {
 }
 
 // ============================================
-// Step 3: Select Date & Time
+// Step 4: Select Date & Time (was Step 3)
 // ============================================
 
 function SelectDateTimeStep() {
-  const { selectedProvider, selectedDate, selectedTime, setDateTime, nextStep, prevStep } =
+  const { selectedLocation, selectedProvider, selectedDate, selectedTime, setDateTime, nextStep, prevStep } =
     useBookingStore()
   const [date, setDate] = useState(selectedDate ?? '')
   const [time, setTime] = useState(selectedTime ?? '')
@@ -363,14 +377,15 @@ function SelectDateTimeStep() {
     setLoading(true)
     setError(null)
     setTime('')
-    const result = await getAvailableTimeSlots(selectedProvider.id, selectedDateStr)
+    const locationId = selectedLocation?.id
+    const result = await getAvailableTimeSlots(selectedProvider.id, selectedDateStr, locationId)
     if (result.success) {
       setSlots(result.data)
     } else {
       setError(result.error)
     }
     setLoading(false)
-  }, [selectedProvider?.id])
+  }, [selectedProvider?.id, selectedLocation?.id])
 
   useEffect(() => {
     if (date) {
@@ -489,11 +504,12 @@ function SelectDateTimeStep() {
 }
 
 // ============================================
-// Step 4: Confirm & Book
+// Step 5: Confirm & Book (was Step 4)
 // ============================================
 
 function ConfirmBookingStep({ userId }: { userId: string }) {
   const {
+    selectedLocation,
     selectedService,
     selectedProvider,
     selectedDate,
@@ -528,6 +544,7 @@ function ConfirmBookingStep({ userId }: { userId: string }) {
         provider_id: selectedProvider.id,
         appointment_date: selectedDate,
         appointment_time: selectedTime,
+        location_id: selectedLocation?.id ?? undefined,
         notes: notes || undefined,
       })
 
@@ -543,6 +560,10 @@ function ConfirmBookingStep({ userId }: { userId: string }) {
   const providerName = selectedProvider
     ? `Dr. ${selectedProvider.profile.first_name ?? ''} ${selectedProvider.profile.last_name ?? ''}`.trim()
     : 'Unknown'
+
+  const locationLabel = selectedLocation
+    ? [selectedLocation.name, selectedLocation.city, selectedLocation.state].filter(Boolean).join(', ')
+    : 'Any Location'
 
   return (
     <div>
@@ -563,6 +584,14 @@ function ConfirmBookingStep({ userId }: { userId: string }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Location */}
+          <div>
+            <p className="text-sm font-medium text-gray-500">Location</p>
+            <p className="text-gray-900 font-semibold">{locationLabel}</p>
+          </div>
+
+          <Separator />
+
           {/* Service */}
           <div className="flex justify-between items-start">
             <div>
@@ -661,10 +690,11 @@ export function BookingFlow({ userId }: BookingFlowProps) {
     <div>
       <StepIndicator currentStep={currentStep} />
 
-      {currentStep === 1 && <SelectServiceStep />}
-      {currentStep === 2 && <SelectProviderStep />}
-      {currentStep === 3 && <SelectDateTimeStep />}
-      {currentStep === 4 && <ConfirmBookingStep userId={userId} />}
+      {currentStep === 1 && <SelectLocationStep />}
+      {currentStep === 2 && <SelectServiceStep />}
+      {currentStep === 3 && <SelectProviderStep />}
+      {currentStep === 4 && <SelectDateTimeStep />}
+      {currentStep === 5 && <ConfirmBookingStep userId={userId} />}
     </div>
   )
 }

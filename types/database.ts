@@ -542,6 +542,15 @@ export interface Location {
   location_type: LocationType
   parent_location_id?: string | null
   is_critical_access: boolean
+  slug?: string | null
+  description?: string | null
+  tagline?: string | null
+  hero_image_url?: string | null
+  amenities?: Json
+  features?: Json
+  travel_info?: string | null
+  accommodation_info?: string | null
+  concierge_info?: string | null
   address_line1?: string | null
   address_line2?: string | null
   city?: string | null
@@ -558,6 +567,15 @@ export interface Location {
   longitude?: number | null
   npi?: string | null
   is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface LocationService {
+  id: string
+  location_id: string
+  service_id: string
+  is_available: boolean
   created_at: string
   updated_at: string
 }
@@ -850,5 +868,6 @@ export type Tables = {
   idr_cases: IDRCase
   provider_locations: ProviderLocation
   provider_services: ProviderService
+  location_services: LocationService
   superbills: Superbill
 }

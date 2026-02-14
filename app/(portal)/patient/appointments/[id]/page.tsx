@@ -81,6 +81,22 @@ function formatTime(dateStr: string | null | undefined): string {
   }
 }
 
+function formatLocationType(type: string | null | undefined): string {
+  if (!type) return ''
+  switch (type) {
+    case 'hub':
+      return 'Hub'
+    case 'spoke':
+      return 'Spoke'
+    case 'mobile':
+      return 'Mobile'
+    case 'virtual':
+      return 'Virtual'
+    default:
+      return type.charAt(0).toUpperCase() + type.slice(1)
+  }
+}
+
 // ============================================
 // Page Component
 // ============================================
@@ -109,13 +125,7 @@ export default async function AppointmentDetailPage({
       ? `Dr. ${appointment.provider_first_name ?? ''} ${appointment.provider_last_name ?? ''}`.trim()
       : null
 
-  const locationText = [
-    appointment.location_name,
-    appointment.location_city,
-    appointment.location_state,
-  ]
-    .filter(Boolean)
-    .join(', ')
+  const hasLocation = Boolean(appointment.location_name)
 
   const canCancel =
     appointment.status === 'scheduled' || appointment.status === 'confirmed'
@@ -231,16 +241,60 @@ export default async function AppointmentDetailPage({
         </Card>
       )}
 
-      {/* Location Card */}
-      {locationText && (
+      {/* Location Card — enhanced with full details */}
+      {hasLocation && (
         <Card id={elementId('appointment-detail', 'location', 'card')} className="mb-6">
           <CardHeader>
-            <CardTitle>Location</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>Location</CardTitle>
+              {appointment.location_type && (
+                <Badge
+                  variant={appointment.location_type === 'hub' ? 'default' : 'outline'}
+                  className="text-[10px]"
+                >
+                  {formatLocationType(appointment.location_type)}
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-900">{locationText}</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              <MetadataField
+                label="Name"
+                value={appointment.location_name ?? 'N/A'}
+              />
+              {(appointment.location_city || appointment.location_state) && (
+                <MetadataField
+                  label="City / State"
+                  value={
+                    [appointment.location_city, appointment.location_state]
+                      .filter(Boolean)
+                      .join(', ')
+                  }
+                />
+              )}
+              {appointment.location_address_line1 && (
+                <MetadataField
+                  label="Address"
+                  value={
+                    [
+                      appointment.location_address_line1,
+                      appointment.location_zip_code,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')
+                  }
+                />
+              )}
+              {appointment.location_phone && (
+                <MetadataField
+                  label="Phone"
+                  value={appointment.location_phone}
+                />
+              )}
+            </div>
             {appointment.room && (
-              <p className="text-sm text-gray-500 mt-1">Room: {appointment.room}</p>
+              <p className="text-sm text-gray-500 mt-4">Room: {appointment.room}</p>
             )}
           </CardContent>
         </Card>
