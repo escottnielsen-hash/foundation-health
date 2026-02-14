@@ -4,83 +4,84 @@
 
 @layer base {
   :root {
-    /* Base: Zinc | Theme: Sky | Style: Mira | Radius: Default (0.5rem) */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Foundation Health Luxury Theme */
+    /* Navy primary palette */
+    --background: 40 33% 98%;
+    --foreground: 215 25% 27%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 215 25% 27%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 215 25% 27%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 40 33% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 43 74% 49%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 199 89% 48%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 43 74% 49%;
     --radius: 0.5rem;
 
-    /* Chart Colors - Sky Theme */
-    --chart-1: 199 89% 48%;
-    --chart-2: 199 89% 38%;
-    --chart-3: 199 70% 55%;
-    --chart-4: 199 60% 65%;
-    --chart-5: 199 50% 75%;
+    /* Chart Colors - Navy/Gold Theme */
+    --chart-1: 222 47% 11%;
+    --chart-2: 222 47% 21%;
+    --chart-3: 43 74% 49%;
+    --chart-4: 43 74% 59%;
+    --chart-5: 215 25% 47%;
 
-    /* Sidebar - Inverted Menu Color with Subtle Accent */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 199 89% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 199 89% 48%;
+    /* Sidebar - Deep Navy */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 40 33% 98%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 222 47% 16%;
+    --sidebar-accent-foreground: 40 33% 98%;
+    --sidebar-border: 222 47% 16%;
+    --sidebar-ring: 43 74% 49%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 222 47% 6%;
+    --foreground: 40 33% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 40 33% 98%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 40 33% 98%;
+    --primary: 43 74% 49%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 47% 16%;
+    --secondary-foreground: 40 33% 98%;
+    --muted: 222 47% 16%;
+    --muted-foreground: 215 16% 60%;
+    --accent: 43 74% 49%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 199 89% 48%;
+    --border: 222 47% 16%;
+    --input: 222 47% 16%;
+    --ring: 43 74% 49%;
 
-    /* Chart Colors - Sky Theme (Dark) */
-    --chart-1: 199 89% 48%;
-    --chart-2: 199 70% 55%;
-    --chart-3: 199 60% 65%;
-    --chart-4: 199 50% 75%;
-    --chart-5: 199 40% 80%;
+    /* Chart Colors - Navy/Gold Theme (Dark) */
+    --chart-1: 43 74% 49%;
+    --chart-2: 43 74% 59%;
+    --chart-3: 222 47% 31%;
+    --chart-4: 215 25% 47%;
+    --chart-5: 215 16% 60%;
 
-    /* Sidebar - Inverted Menu Color with Subtle Accent (Dark) */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 199 89% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 199 89% 48%;
+    /* Sidebar - Deep Navy (Dark) */
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 40 33% 98%;
+    --sidebar-primary: 43 74% 49%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 222 47% 12%;
+    --sidebar-accent-foreground: 40 33% 98%;
+    --sidebar-border: 222 47% 12%;
+    --sidebar-ring: 43 74% 49%;
   }
 }
 
@@ -95,18 +96,22 @@
 
 @layer components {
   .btn-primary {
-    @apply px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-200;
+    @apply px-8 py-3.5 bg-accent text-primary rounded-lg font-semibold
+           hover:bg-accent/90 transition-all duration-300
+           shadow-sm hover:shadow-md tracking-wide;
   }
 
   .btn-secondary {
-    @apply px-6 py-3 bg-secondary text-secondary-foreground border border-border rounded-lg font-semibold hover:bg-secondary/80 transition-colors duration-200;
+    @apply px-8 py-3.5 bg-transparent text-primary border-2 border-primary
+           rounded-lg font-semibold hover:bg-primary hover:text-primary-foreground
+           transition-all duration-300 tracking-wide;
   }
 
   .section-title {
-    @apply text-4xl md:text-5xl font-bold text-foreground mb-6;
+    @apply text-4xl md:text-5xl font-bold text-foreground mb-6 font-display;
   }
 
   .section-subtitle {
-    @apply text-xl text-muted-foreground max-w-3xl mx-auto;
+    @apply text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed;
   }
 }

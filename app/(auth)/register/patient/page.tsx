@@ -83,6 +83,8 @@ export default function PatientRegisterPage() {
         .insert({
           id: authData.user.id,
           role: 'patient',
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           full_name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
           phone: formData.phone || null,
