@@ -6,6 +6,7 @@ const authPaths = ['/login', '/register', '/forgot-password']
 const physicianPaths = ['/physician']
 const patientPaths = ['/patient']
 const adminPaths = ['/admin']
+const staffPaths = ['/staff']
 
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user, supabase } = await updateSession(request)
@@ -46,6 +47,10 @@ export async function middleware(request: NextRequest) {
   }
 
   if (adminPaths.some(p => path.startsWith(p)) && role !== 'admin') {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  if (staffPaths.some(p => path.startsWith(p)) && role !== 'staff' && role !== 'admin') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
