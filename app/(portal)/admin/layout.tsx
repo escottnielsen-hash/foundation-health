@@ -7,6 +7,7 @@ import {
   Network,
   DollarSign,
   FileCheck,
+  Video,
 } from 'lucide-react'
 
 // ============================================
@@ -19,6 +20,7 @@ const adminNavItems = [
   { label: 'Network', href: '/admin/network', icon: Network },
   { label: 'Claims', href: '/admin/claims', icon: FileCheck },
   { label: 'Revenue', href: '/admin/revenue', icon: DollarSign },
+  { label: 'Telemedicine', href: '/admin/telemedicine', icon: Video },
 ]
 
 // ============================================

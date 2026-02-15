@@ -11,8 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { Menu, Bell, User, CreditCard, LogOut } from 'lucide-react'
+import { Menu, User, CreditCard, LogOut } from 'lucide-react'
 import Link from 'next/link'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 // ============================================
 // Types
@@ -36,6 +37,7 @@ const routeTitles: Record<string, string> = {
   '/patient/providers': 'Providers',
   '/patient/membership': 'Membership',
   '/patient/profile': 'Profile',
+  '/patient/notifications': 'Notifications',
 }
 
 function getPageTitle(pathname: string): string {
@@ -97,16 +99,8 @@ export function PortalHeader({
 
       {/* Right: Notifications + User dropdown */}
       <div className="flex items-center gap-2">
-        {/* Notification Bell (placeholder) */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative text-gray-500 hover:text-gray-700"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          {/* Future: notification count badge */}
-        </Button>
+        {/* Notification Bell with unread count */}
+        <NotificationBell />
 
         {/* User Avatar Dropdown */}
         <DropdownMenu>

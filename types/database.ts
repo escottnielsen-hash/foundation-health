@@ -26,6 +26,11 @@ export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'partially_paid' | 'over
 export type ClaimStatus = 'draft' | 'submitted' | 'acknowledged' | 'pending' | 'in_review' | 'denied' | 'partially_paid' | 'paid' | 'appealed' | 'idr_initiated' | 'idr_resolved' | 'closed'
 export type ClaimActivityType = 'submitted' | 'acknowledged' | 'info_requested' | 'denied' | 'partially_paid' | 'paid' | 'appeal_filed' | 'idr_initiated' | 'idr_resolved' | 'note_added' | 'eob_received'
 export type IDRStatus = 'initiated' | 'negotiation' | 'submitted' | 'hearing_scheduled' | 'decided' | 'closed'
+export type SessionType = 'pre_op_consult' | 'post_op_followup' | 'general_consult' | 'second_opinion' | 'urgent_care'
+export type SessionStatus = 'scheduled' | 'waiting_room' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
+export type MessageType = 'text' | 'image' | 'file' | 'system'
+export type NotificationType = 'appointment' | 'claim' | 'insurance' | 'telemedicine' | 'billing' | 'system' | 'message'
+export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
 
 // ============================================
 // Core tables
@@ -979,6 +984,65 @@ export interface ClaimWithDetails {
 }
 
 // ============================================
+// Phase 1f: Telemedicine
+// ============================================
+
+export interface TelemedicineSession {
+  id: string
+  appointment_id?: string | null
+  patient_id: string
+  physician_id: string
+  session_type: SessionType
+  status: SessionStatus
+  scheduled_start: string
+  scheduled_duration_minutes: number
+  actual_start?: string | null
+  actual_end?: string | null
+  room_id?: string | null
+  room_url?: string | null
+  recording_url?: string | null
+  chief_complaint?: string | null
+  clinical_notes?: string | null
+  follow_up_instructions?: string | null
+  prescriptions_issued?: string[] | null
+  patient_consent_given: boolean
+  consent_timestamp?: string | null
+  patient_state?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface TelemedicineMessage {
+  id: string
+  session_id: string
+  sender_id: string
+  message_type: MessageType
+  content: string
+  is_read: boolean
+  created_at: string
+}
+
+// ============================================
+// Phase 1f: Notifications
+// ============================================
+
+export interface Notification {
+  id: string
+  user_id: string
+  title: string
+  message: string
+  type: NotificationType
+  priority: NotificationPriority
+  is_read: boolean
+  read_at?: string | null
+  action_url?: string | null
+  action_label?: string | null
+  related_entity_type?: string | null
+  related_entity_id?: string | null
+  created_at: string
+}
+
+// ============================================
 // Convenience type aliases
 // ============================================
 
@@ -1022,4 +1086,7 @@ export type Tables = {
   claim_activities: ClaimActivity
   claim_appeals: ClaimAppeal
   idr_cases_enhanced: IdrCaseEnhanced
+  telemedicine_sessions: TelemedicineSession
+  telemedicine_messages: TelemedicineMessage
+  notifications: Notification
 }
