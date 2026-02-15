@@ -23,6 +23,7 @@ import {
   Shield,
   FileCheck,
   MapPin,
+  Video,
 } from 'lucide-react'
 
 // ============================================
@@ -52,6 +53,7 @@ const navItems: NavItem[] = [
   { label: 'Appointments', href: '/patient/appointments', icon: Calendar },
   { label: 'Health Records', href: '/patient/records', icon: FileText },
   { label: 'Encounters', href: '/patient/encounters', icon: Stethoscope },
+  { label: 'Telemedicine', href: '/patient/telemedicine', icon: Video },
   { label: 'Providers', href: '/patient/providers', icon: Users },
   { label: 'Travel & Concierge', href: '/patient/travel', icon: Plane },
   { label: 'Membership', href: '/patient/membership', icon: CreditCard },
